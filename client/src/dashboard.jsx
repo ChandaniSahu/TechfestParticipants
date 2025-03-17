@@ -9,7 +9,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/getData");
+        const res = await axios.get("https://techfest-participants.vercel.app/api/getData");
         setData(res.data);
         console.log('dash',res.data)
         setSelectedActivity(res.data[0]?.activity || "");

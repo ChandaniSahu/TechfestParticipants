@@ -54,7 +54,7 @@ const Form = () => {
     }
 
     try {
-      const res = await axios.post("http://localhost:3000/api/storeData", detail);
+      const res = await axios.post("https://techfest-participants.vercel.app/api/storeData", detail);
       if (res.data.msg === "data already exist") {
         alert(res.data.message);
         setLoad(false);
