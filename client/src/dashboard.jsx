@@ -10,7 +10,8 @@ const Dashboard = () => {
     const fetchData = async () => {
       try {
         const res = await axios.get("https://techfest-participants.vercel.app/api/getData");
-        setData(res.data);
+        const rev = res.data.reverse();
+        setData(rev);
         console.log('dash',res.data)
         setSelectedActivity(res.data[0]?.activity || "");
 
