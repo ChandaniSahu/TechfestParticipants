@@ -44,7 +44,7 @@ const Auth = () => {
 
   return (
     <div 
-    className="position max-w-md w-[400px] p-8 bg-white shadow-2xl rounded-2xl border border-gray-200">
+    className="positionL max-w-md w-[400px]  p-8 bg-white shadow-2xl rounded-2xl border border-gray-200">
       {/* Close Button */}
       <RxCross1
         onClick={() => setShowLogin(false)}

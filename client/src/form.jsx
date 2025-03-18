@@ -73,7 +73,7 @@ const Form = () => {
   };
 
   return (
-    <div className="mt-[100px] mx-5  position w-full max-w-[500px] p-8 bg-white bg-opacity-90 backdrop-blur-md shadow-2xl rounded-2xl border border-gray-200">
+    <div className="mt-[100px] mx-5  position w-full  max-w-[400px] p-8 bg-white bg-opacity-90 backdrop-blur-md shadow-2xl rounded-2xl border border-gray-200">
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">📋 Activity Form</h2>
       <div className="space-y-5">
         {/* Select Field */}
