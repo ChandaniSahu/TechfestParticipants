@@ -6,21 +6,23 @@ const Dashboard = () => {
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await axios.get("https://techfest-participants.vercel.app/api/getData");
-        const rev = res.data.reverse();
-        setData(rev);
-        console.log('dash',res.data)
-        setSelectedActivity(res.data[0]?.activity || "");
+  const fetchData = async () => {
+    try {
+      const res = await axios.get("https://techfest-participants.vercel.app/api/getData");
+      const rev = res.data.reverse();
+      setData(rev);
+      console.log('dash',res.data)
+      setSelectedActivity(res.data[0]?.activity || "");
 
-      } catch (e) {
-        console.error("Error fetching data:", e);
-      } finally {
-        setLoading(false);
-      }
-    };
+    } catch (e) {
+      console.error("Error fetching data:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+ 
+  useEffect(() => {
+    
     fetchData();
   },[]);
 

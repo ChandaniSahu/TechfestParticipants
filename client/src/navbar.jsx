@@ -9,10 +9,7 @@ import Auth from "./auth.jsx";
 const Navbar = () => {
   const { showLogin, setShowLogin, color, loggedIn, setLoggedIn, setColor, showForm, setShowForm } = useContext(context);
 
-  const handleShowLogin = () => {
-    if (loggedIn) setShowForm(true);
-    else setShowLogin(true);
-  };
+  
 
   useEffect(()=>{
   if(!showLogin&& !showForm)
@@ -23,16 +20,17 @@ const Navbar = () => {
       {/* Navbar Container */}
       <div className="bg-white shadow-md border-b-[3px] border-orange-500 px-6 md:px-12 flex items-center justify-between h-[80px] fixed top-0 w-full z-50">
         {/* Logo */}
-      <a href='https://matsuniversity.ac.in' target='_blank' className="transition-transform duration-200 hover:scale-110"> <img src={Logo} alt="MATS Logo" className="w-[70px] h-[70px] object-contain " /></a> 
+       <img src={Logo} alt="MATS Logo" className="w-[70px] h-[70px] object-contain transition-transform duration-200 hover:scale-110" />
 
         {/* Navigation Links */}
-        <div className="flex space-x-8 text-[18px] font-medium">
+       {loggedIn?
+       <div className="flex space-x-8 text-[20px] font-medium">
           <Link
             onClick={() => {
               setColor("f");
-              handleShowLogin();
+              setShowForm(true)
             }}
-            className={`transition duration-300 ${
+            className={`transition duration-300  ${
               color === "f" ? "text-orange-600 border-b-2 border-orange-500" : "text-gray-700 hover:text-orange-500"
             }`}
           >
@@ -42,18 +40,28 @@ const Navbar = () => {
           <Link
             to="/"
             onClick={() => {
-              setColor("d");
-              setShowForm(false)
-              setShowLogin(false)
+              setColor("l");
+              localStorage.clear();
+              setLoggedIn(false)
             }}
             className={`transition duration-300 ${
-              color === "d" ? "text-orange-600 border-b-2 border-orange-500" : "text-gray-700 hover:text-orange-500"
+              color === "l" ? "text-orange-600 border-b-2 border-orange-500" : "text-gray-700 hover:text-orange-500"
             }`}
           >
-            Dashboard
+            Logout
           </Link>
-         
-        </div>
+        </div> :
+       
+       <Link onClick={() => {
+              setColor("f");
+              setShowLogin(true);
+            }}
+            className={`transition duration-300 text-[20px] font-medium ${
+              color === "f" ? "text-orange-600 border-b-2 border-orange-500" : "text-gray-700 hover:text-orange-500"
+            }`}>Login</Link>
+
+        }
+        
       </div>
 
       {/* Popups */}

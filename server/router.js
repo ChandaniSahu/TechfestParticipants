@@ -21,13 +21,14 @@ router.post('/storeData',async(req,res)=>{
                 res.json({message:'data stored successfully'})
             }
             else{
-                res.json({message:'data not stored'})
+                res.json({message:'data not stored,please try again'})
             }
         }
     
     }
     catch(e){
      console.log('server error in storedata',e)
+     res.json({msg:'server error in submitting form'})
     }
 })
 

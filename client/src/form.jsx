@@ -26,11 +26,6 @@ const Form = () => {
     setDetail({ ...detail, [e.target.name]: e.target.value });
   };
 
-  // useEffect(()=>{
-  // console.log('member',member)
-  // console.log('rani')
-  // },[member])
-
   const addMember = () => {
     if (member.trim() !== "") {
       setDetail({ ...detail, members: [...detail.members, member] });
@@ -46,30 +41,25 @@ const Form = () => {
 
    // Function to delete a member
    const deleteMember = (index) => {
-    console.log('idx in delet',index)
     const updatedMembers = detail.members.filter((_, i) => i !== index);
     setDetail({ ...detail, members: updatedMembers });
   };
 
-  // // Function to select a member for editing
-  // const selectMember = (index) => {
-  //   console.log('idx in select',index)
+  // Function to select a member for editing
+  const selectMember = (index) => {
+    setIndex(index);
+    console.log(index,detail.members[index])
+    setMember(detail.members[index]);
+    setShowEdit(true);
+  };
 
-  //   setIndex(index);
-  //   console.log(index,detail.members[index])
-  //   setMember('nameinselect',detail.members[index]);
-  //   setShowEdit(true);
-  // };
-
-  // // Function to save the edited member
-  // const editMember = (index) => {
-  //   console.log('idx in edit',index)
-
-  //   const updatedMembers = [...detail.members];
-  //   updatedMembers[index] = member;
-  //   setDetail({ ...detail, members: updatedMembers });
-  //   setMember("");
-  // };
+  // Function to save the edited member
+  const editMember = () => {
+    const updatedMembers = [...detail.members];
+    updatedMembers[index] = member;
+    setDetail({ ...detail, members: updatedMembers });
+    setMember("");
+  };
 
   const handleSubmit = async () => {
     setLoad(true);
@@ -93,25 +83,25 @@ const Form = () => {
 
     try {
       const res = await axios.post("https://techfest-participants.vercel.app/api/storeData", detail);
-      if (res.data.msg === "data already exist") {
-        alert(res.data.message);
-        setLoad(false);
-        return;
-      }
-
+     
       if (res.data.message === "data stored successfully") {
         setShowForm(false);
-        setLoad(false);
-        setColor("d");
+        setColor("f");
       }
+      alert(res.data.message);
     } catch (e) {
       console.log("error in handleSubmit", e);
+      alert('Error in submitting form')
+      
+
+    }
+    finally{
       setLoad(false);
     }
   };
 
   return (
-    <div className="mt-[100px] mx-5  position w-full  max-w-[400px] p-8 bg-white bg-opacity-90 backdrop-blur-md shadow-2xl rounded-2xl border border-gray-200">
+    <div className="mt-[100px] mx-5  position w-full  max-w-[400px] p-8 bg-white bg-opacity-90  shadow-2xl rounded-2xl border border-gray-200">
       <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">📋 Activity Form</h2>
       <div className="space-y-5">
         {/* Select Field */}
@@ -209,18 +199,18 @@ const Form = () => {
                 className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
                 placeholder="Add member name"
               />
-              {/* {showEdit?<button
+              {showEdit?<button
                 onClick={()=>{editMember();setShowEdit(false)}}
                 className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg shadow-lg hover:scale-105 transition"
               >
                  Edit
-              </button>:''} */}
+              </button>:
               <button
                 onClick={addMember}
                 className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg shadow-lg hover:scale-105 transition"
               >
                  Add
-              </button>
+              </button>}
               
             </div>
           </div>
@@ -236,19 +226,22 @@ const Form = () => {
                 className=" relative  w-full p-2 border  rounded-lg bg-gray-100 shadow-sm text-gray-800 mb-2"
               >
                 {member}
-                <FiTrash2
-            onClick={() => {deleteMember(index);{console.log('idx',index)}}}
-            className="absolute top-2 right-1 text-red-500 cursor-pointer hover:text-red-700"
+                
+                <div className="absolute top-2 right-1 flex space-x-[10px]">
+                 <FiTrash2
+                 title="Delete"
+            onClick={() => {deleteMember(index)}}
+            className="text-red-500 cursor-pointer hover:text-red-700"
             size={20}
-          />
-                {/* <div className="absolute top-2 right-1 flex space-x-[10px]">
+          /> 
           <FiEdit
-            onClick={() => {selectMember(index);{console.log(index)}}}
-            className="text-blue-500 cursor-pointer hover:text-blue-700"
+            onClick={() => {selectMember(index)}}
+            title="Edit"
+            className="text-green-500 cursor-pointer hover:text-green-700"
             size={20}
           />
           
-        </div> */}
+        </div>
               </div>
               
             ))}

@@ -17,7 +17,13 @@ const Auth = () => {
 
   const handleOTPGenerate = async () => {
     setLoadingOtp(true); // Show loading animation
-    try {
+    if(!login.gmail){
+      alert('Email is required')
+      setLoadingOtp(false)
+      return;
+    }
+    else{
+        try {
       const res = await axios.post("https://techfest-participants.vercel.app/api/generateOTP", { gmail: login.gmail });
       // console.log('res',res)
       setOtpVar(res.data.otp);
@@ -25,6 +31,8 @@ const Auth = () => {
     } catch (error) {
       alert("Failed to send OTP. Try again.",error);
     }
+    }
+  
     setLoadingOtp(false);
   };
 

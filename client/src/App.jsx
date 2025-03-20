@@ -38,9 +38,9 @@ useEffect(() => {
       <Router>
         <Navbar />
         <Routes>
-          <Route path="/form" element={<Form />} />
+          {/* <Route path="/form" element={<Form />} /> */}
           <Route path="/" element={<Dashboard />} />
-          <Route path="/auth" element={<Auth />} />
+          {/* <Route path="/auth" element={<Auth />} /> */}
         </Routes>
       </Router>
     </context.Provider>
