@@ -6,13 +6,27 @@ import Navbar from "./navbar.jsx";
 import Auth from "./auth.jsx";
 
 export const context = createContext();
-
+//wsjf xmer ebbz rkiu
 const App = () => {
   const [showLogin, setShowLogin] = useState(false)
   const [color, setColor] = useState('d')
   const[showForm,setShowForm] = useState(false)
-  const[loggedIn,setLoggedIn] = useState(false)
   const[email,setEmail] = useState('')
+
+  const [loggedIn, setLoggedIn] = useState(() => {
+    const retrievedDetails = localStorage.getItem('loggedIn')
+    if(retrievedDetails==='undefined' || retrievedDetails==='null' || retrievedDetails===null || retrievedDetails===undefined ){
+      return retrievedDetails===false
+ 
+    }else{
+     return JSON.parse(retrievedDetails)
+    }
+});
+
+useEffect(() => {
+    localStorage.setItem('loggedIn', loggedIn);
+}, [loggedIn]);
+
   useEffect(() => {
     console.log('showLogin',showLogin)
     console.log('showForm',showForm)

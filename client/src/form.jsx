@@ -1,6 +1,8 @@
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { RxCross1 } from "react-icons/rx";
+import { FiEdit, FiTrash2 } from "react-icons/fi";
+
 import { context } from "./App";
 
 const Form = () => {
@@ -15,6 +17,8 @@ const Form = () => {
   });
   const [member, setMember] = useState("");
   const [name, setName] = useState("");
+  const [index, setIndex] = useState(null);
+  const [showEdit, setShowEdit] = useState(false);
   const [load, setLoad] = useState(false);
 
   const handleInput = (e) => {
@@ -34,7 +38,29 @@ const Form = () => {
     }
   }, [name, detail.mode]);
 
+   // Function to delete a member
+   const deleteMember = (index) => {
+    const updatedMembers = detail.members.filter((_, i) => i !== index);
+    setDetail({ ...detail, members: updatedMembers });
+  };
+
+  // Function to select a member for editing
+  const selectMember = (index) => {
+    setIndex(index);
+    setName(detail.members[index]);
+    setShowEdit(true);
+  };
+
+  // Function to save the edited member
+  const editMember = (index) => {
+    const updatedMembers = [...detail.members];
+    updatedMembers[index] = name;
+    setDetail({ ...detail, members: updatedMembers });
+    setName("");
+  };
+
   const handleSubmit = async () => {
+    setLoad(true);
     if (!detail.activity || !detail.Tname || !detail.TDes || !detail.mode || detail.members.length === 0) {
       alert("All fields are required");
       setLoad(false);
@@ -171,12 +197,19 @@ const Form = () => {
                 className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
                 placeholder="Add member name"
               />
+              {showEdit?<button
+                onClick={editMember}
+                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg shadow-lg hover:scale-105 transition"
+              >
+                 Edit
+              </button>:
               <button
                 onClick={addMember}
                 className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg shadow-lg hover:scale-105 transition"
               >
                  Add
-              </button>
+              </button>}
+              
             </div>
           </div>
         )}
@@ -188,10 +221,23 @@ const Form = () => {
             {detail.members.map((member, index) => (
               <div
                 key={index}
-                className="w-full p-2 border rounded-lg bg-gray-100 shadow-sm text-gray-800 mb-2"
+                className=" relative  w-full p-2 border  rounded-lg bg-gray-100 shadow-sm text-gray-800 mb-2"
               >
                 {member}
+                <div className="absolute top-2 right-1 flex space-x-[10px]">
+          <FiEdit
+            onClick={() => selectMember(index)}
+            className="text-blue-500 cursor-pointer hover:text-blue-700"
+            size={20}
+          />
+          <FiTrash2
+            onClick={() => deleteMember(index)}
+            className="text-red-500 cursor-pointer hover:text-red-700"
+            size={20}
+          />
+        </div>
               </div>
+              
             ))}
           </div>
         )}
@@ -199,10 +245,7 @@ const Form = () => {
         {/* Submit Button */}
         <button
           type="submit"
-          onClick={() => {
-            handleSubmit();
-            setLoad(true);
-          }}
+          onClick={handleSubmit}
           className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-3 rounded-lg shadow-lg hover:scale-105 transition"
         >
           {!load ? "Submit" : (
