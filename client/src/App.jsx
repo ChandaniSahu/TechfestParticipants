@@ -6,7 +6,6 @@ import Navbar from "./navbar.jsx";
 import Auth from "./auth.jsx";
 
 export const context = createContext();
-//wsjf xmer ebbz rkiu
 const App = () => {
   const [showLogin, setShowLogin] = useState(false)
   const [color, setColor] = useState('d')

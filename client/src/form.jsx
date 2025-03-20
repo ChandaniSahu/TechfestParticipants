@@ -1,4 +1,5 @@
-import { useState, useEffect, useContext } from "react";
+import { useState,useContext } from "react";
+import {useEffect} from 'react'
 import axios from "axios";
 import { RxCross1 } from "react-icons/rx";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
@@ -15,7 +16,7 @@ const Form = () => {
     TDes: "",
     members: [],
   });
-  const [member, setMember] = useState("");
+  const [member, setMember] = useState('');
   const [name, setName] = useState("");
   const [index, setIndex] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
@@ -24,6 +25,11 @@ const Form = () => {
   const handleInput = (e) => {
     setDetail({ ...detail, [e.target.name]: e.target.value });
   };
+
+  // useEffect(()=>{
+  // console.log('member',member)
+  // console.log('rani')
+  // },[member])
 
   const addMember = () => {
     if (member.trim() !== "") {
@@ -40,24 +46,30 @@ const Form = () => {
 
    // Function to delete a member
    const deleteMember = (index) => {
+    console.log('idx in delet',index)
     const updatedMembers = detail.members.filter((_, i) => i !== index);
     setDetail({ ...detail, members: updatedMembers });
   };
 
-  // Function to select a member for editing
-  const selectMember = (index) => {
-    setIndex(index);
-    setName(detail.members[index]);
-    setShowEdit(true);
-  };
+  // // Function to select a member for editing
+  // const selectMember = (index) => {
+  //   console.log('idx in select',index)
 
-  // Function to save the edited member
-  const editMember = (index) => {
-    const updatedMembers = [...detail.members];
-    updatedMembers[index] = name;
-    setDetail({ ...detail, members: updatedMembers });
-    setName("");
-  };
+  //   setIndex(index);
+  //   console.log(index,detail.members[index])
+  //   setMember('nameinselect',detail.members[index]);
+  //   setShowEdit(true);
+  // };
+
+  // // Function to save the edited member
+  // const editMember = (index) => {
+  //   console.log('idx in edit',index)
+
+  //   const updatedMembers = [...detail.members];
+  //   updatedMembers[index] = member;
+  //   setDetail({ ...detail, members: updatedMembers });
+  //   setMember("");
+  // };
 
   const handleSubmit = async () => {
     setLoad(true);
@@ -197,18 +209,18 @@ const Form = () => {
                 className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
                 placeholder="Add member name"
               />
-              {showEdit?<button
-                onClick={editMember}
+              {/* {showEdit?<button
+                onClick={()=>{editMember();setShowEdit(false)}}
                 className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg shadow-lg hover:scale-105 transition"
               >
                  Edit
-              </button>:
+              </button>:''} */}
               <button
                 onClick={addMember}
                 className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg shadow-lg hover:scale-105 transition"
               >
                  Add
-              </button>}
+              </button>
               
             </div>
           </div>
@@ -224,18 +236,19 @@ const Form = () => {
                 className=" relative  w-full p-2 border  rounded-lg bg-gray-100 shadow-sm text-gray-800 mb-2"
               >
                 {member}
-                <div className="absolute top-2 right-1 flex space-x-[10px]">
+                <FiTrash2
+            onClick={() => {deleteMember(index);{console.log('idx',index)}}}
+            className="absolute top-2 right-1 text-red-500 cursor-pointer hover:text-red-700"
+            size={20}
+          />
+                {/* <div className="absolute top-2 right-1 flex space-x-[10px]">
           <FiEdit
-            onClick={() => selectMember(index)}
+            onClick={() => {selectMember(index);{console.log(index)}}}
             className="text-blue-500 cursor-pointer hover:text-blue-700"
             size={20}
           />
-          <FiTrash2
-            onClick={() => deleteMember(index)}
-            className="text-red-500 cursor-pointer hover:text-red-700"
-            size={20}
-          />
-        </div>
+          
+        </div> */}
               </div>
               
             ))}
