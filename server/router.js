@@ -55,20 +55,30 @@ router.post('/generateOTP',async (req,res)=>{
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         auth: {
-           user: 'rrrsahu2005@gmail.com',
+           user: 'chanakyadassahu@gmail.com',
            pass:process.env.GMAIL_PASS
         }
      });
 
      const mailOptions = {
-        from: 'rrrsahu2005@gmail.com',
+        from: 'chanakyadassahu@gmail.com',
         to: gmail,
         subject: 'Techfest-2025 OTP Verification : ',
-        html: `<h1>Hello, Participants</h1><br/>
-    <p>Your OTP for <strong>Techfest-2025</strong>
-     verification is: <b>${OTP}</b>. 
-     Please use this code to complete your verification.</p>`
-
+        html: `
+    <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; position: relative;">
+        <h2 style="color: #333;">Hello, Participant! 🎉</h2>
+        <p style="font-size: 16px; color: #555;">
+            Your OTP for <strong>Techfest-2025</strong> verification is:
+        </p>
+        <h1 style="color: #007BFF; font-size: 24px;">${OTP}</h1>
+        <p style="font-size: 14px; color: #777;">
+            Please use this code to complete your verification. This OTP is valid for a limited time.
+        </p>
+        <p style="font-size: 12px; color: #999;">If you did not request this, please ignore this email.</p>
+        <br>
+        <p style="font-size: 14px; color: #555; text-align: left;">Regards,<br>Chandani Sahu,<br>Co-Ordinator</p>
+    </div>
+`
      };
 
      const response = await transporter.sendMail(mailOptions, (error, info) => {
@@ -82,4 +92,36 @@ router.post('/generateOTP',async (req,res)=>{
      });
 })
 
+router.get("/deleteData/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      console.log("Deleting activity with ID:", id);
+  
+      const deletedActivity = await Form.findByIdAndDelete(id);
+      if (!deletedActivity) {
+        return res.json({ success: false, message: "Delete Activity not found" });
+      }
+  
+      res.json({ success: true, message: "Activity deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting activity:", error);
+      res.json({ success: false, message: "Internal Server Error" });
+    }
+  });
+
+  router.put('/updateActivity/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const updatedActivity = await Form.findByIdAndUpdate(id, req.body, { new: true });
+        {
+        if (!updatedActivity) {
+            res.json({ success: true, message: "update Activity is not found " });
+        }}
+        
+        res.json({ success: true, message: "Activity Edited successfully" });
+
+    } catch (error) {
+        res.json({ message: 'Error updating activity', error });
+    }
+});
 module.exports = router

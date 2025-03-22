@@ -1,7 +1,10 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect,useContext} from "react";
 import axios from "axios";
+import{context} from './App'
+import { FiEdit, FiTrash2 } from "react-icons/fi";
 
 const Dashboard = () => {
+  const {user,editActivity,setEditActivity,setShowEditForm} = useContext(context);
   const [data, setData] = useState([]);
   const [selectedActivity, setSelectedActivity] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,6 +28,27 @@ const Dashboard = () => {
     
     fetchData();
   },[]);
+
+  const deleteActivity = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this activity?")) {
+      return;
+    }
+    try{
+      console.log('delete id',id)
+   const res = await axios.get(`http://localhost:3000/api/deleteData/${id}`)
+    console.log('res',res)
+    }
+   catch(e){
+     console.log('error in delete in dash',e)
+   }
+  }
+
+  const handleEditActivity =  (activity) => {
+    console.log('editactivity',activity)
+    setEditActivity(activity)
+    console.log('acty',editActivity)
+    setShowEditForm(true)
+   }
 
   const activities = [...new Set(data.map((item) => item.activity))];
   const filteredParticipants = data.filter((item) => item.activity === selectedActivity);
@@ -94,7 +118,19 @@ const Dashboard = () => {
                           <p className="font-semibold text-gray-900">
                             👥 Members: <span className="text-gray-600">{item.members.join(", ")}</span>
                           </p>
-                        )}
+                        )}{console.log('emailRani',user.email)}
+                         {user.email==='rrrsahu2005@gmail.com' && user.loggedIn ?<div className="absolute top-3 right-3 flex space-x-3">
+                          <FiTrash2
+                             onClick={() => deleteActivity(item._id)}
+                            className="text-red-500 cursor-pointer hover:text-red-700"
+                            size={20}
+                           />
+                          <FiEdit
+                           onClick={() => handleEditActivity(item)}
+                           className="text-green-500 cursor-pointer hover:text-green-700"
+                           size={20}
+                           />
+                        </div>:'no'}
                       </div>
                     ))
                   ) : (

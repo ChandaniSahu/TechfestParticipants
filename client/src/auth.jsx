@@ -4,7 +4,7 @@ import axios from "axios";
 import { context } from "./App.jsx";
 
 const Auth = () => {
-  const { setShowLogin, setColor, setShowForm, setLoggedIn,setEmail } = useContext(context);
+  const { setShowLogin, setColor, setShowForm, setUser } = useContext(context);
   const [login, setLogin] = useState({ gmail: "", otp: "" });
   const [otpVar, setOtpVar] = useState("");
   const [loadingOtp, setLoadingOtp] = useState(false);
@@ -24,7 +24,7 @@ const Auth = () => {
     }
     else{
         try {
-      const res = await axios.post("https://techfest-participants.vercel.app/api/generateOTP", { gmail: login.gmail });
+      const res = await axios.post("http://localhost:3000/api/generateOTP", { gmail: login.gmail });
       // console.log('res',res)
       setOtpVar(res.data.otp);
       setOtpSent(true); // Show OTP input field
@@ -40,10 +40,9 @@ const Auth = () => {
     setVerifying(true);
     setTimeout(() => {
       if (login.otp === otpVar) {
-        setEmail(login.gmail);
+        setUser({ email: login.gmail, loggedIn: true });
         setLogin({ gmail: "", otp: "" });
         setShowForm(true);
-        setLoggedIn(true);
         setShowLogin(false);
         setColor("f");
       } else {

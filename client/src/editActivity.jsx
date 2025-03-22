@@ -1,26 +1,38 @@
-import { useState,useContext } from "react";
-import {useEffect} from 'react'
+import { useState, useContext, useEffect } from "react";
 import axios from "axios";
 import { RxCross1 } from "react-icons/rx";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
-
 import { context } from "./App";
 
-const Form = () => {
-  const { setShowForm, setColor, user } = useContext(context);
+const EditActivity = () => {
+  const { setShowForm, setColor, editActivity, setEditActivity ,setShowEditForm} = useContext(context);
+
   const [detail, setDetail] = useState({
-    email: user.email,
     activity: "",
     mode: "",
     Tname: "",
     TDes: "",
     members: [],
   });
-  const [member, setMember] = useState('');
+
+  const [member, setMember] = useState("");
   const [name, setName] = useState("");
   const [index, setIndex] = useState(null);
   const [showEdit, setShowEdit] = useState(false);
-  const [load, setLoad] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (editActivity && editActivity) {
+      setDetail({
+        activity: editActivity.activity || "",
+        mode: editActivity.mode || "",
+        Tname: editActivity.Tname || "",
+        TDes: editActivity.TDes || "",
+        members: editActivity.members || [],
+      });
+      setName(editActivity.members[0] || "");
+    }
+  }, [editActivity]);
 
   const handleInput = (e) => {
     setDetail({ ...detail, [e.target.name]: e.target.value });
@@ -28,87 +40,84 @@ const Form = () => {
 
   const addMember = () => {
     if (member.trim() !== "") {
-      setDetail({ ...detail, members: [...detail.members, member] });
+      setDetail((prev) => ({ ...prev, members: [...prev.members, member] }));
       setMember("");
     }
   };
 
-  useEffect(() => {
-    if (detail.mode === "solo" && name) {
-      setDetail((prev) => ({ ...prev, members: [name] }));
-    }
-  }, [name, detail.mode]);
-
-   // Function to delete a member
-   const deleteMember = (index) => {
-    const updatedMembers = detail.members.filter((_, i) => i !== index);
-    setDetail({ ...detail, members: updatedMembers });
+  const deleteMember = (index) => {
+    setDetail((prev) => ({
+      ...prev,
+      members: prev.members.filter((_, i) => i !== index),
+    }));
   };
 
-  // Function to select a member for editing
   const selectMember = (index) => {
     setIndex(index);
-    console.log(index,detail.members[index])
     setMember(detail.members[index]);
     setShowEdit(true);
   };
 
-  // Function to save the edited member
   const editMember = () => {
     const updatedMembers = [...detail.members];
     updatedMembers[index] = member;
-    setDetail({ ...detail, members: updatedMembers });
+    setDetail((prev) => ({ ...prev, members: updatedMembers }));
     setMember("");
+    setShowEdit(false);
   };
 
-  const handleSubmit = async () => {
-    setLoad(true);
-    if (!detail.activity || !detail.Tname || !detail.TDes || !detail.mode || detail.members.length === 0) {
-      alert("All fields are required");
-      setLoad(false);
+  const handleUpdate = async () => {
+    setLoading(true);
+
+    if (!detail.activity || !detail.Tname || !detail.TDes || !detail.mode) {
+      alert("All fields are required.");
+      setLoading(false);
       return;
     }
 
     if (detail.mode === "group" && detail.members.length < 2) {
-      alert("At least two members are required");
-      setLoad(false);
+      alert("At least two members are required for group mode.");
+      setLoading(false);
       return;
     }
 
-    if (detail.mode === "solo" && detail.members.length > 1) {
-      alert("Only one member is allowed in solo mode");
-      setLoad(false);
+    if (detail.mode === "solo" && detail.members.length !== 1) {
+      alert("Only one member is allowed in solo mode.");
+      setLoading(false);
       return;
     }
 
     try {
-      const res = await axios.post("https://techfest-participants.vercel.app/api/storeData", detail);
-      if (res.data.message === "data stored successfully") {
-        setShowForm(false);
-        setColor("f");
-      }
-      else
-      alert(res.data.message);
-    } catch (e) {
-      console.log("error in handleSubmit", e);
-      alert('Error in submitting form')
-      
+      const res = await axios.put(
+        `http://localhost:3000/api/updateActivity/${editActivity._id}`,
+        detail
+      );
 
-    }
-    finally{
-      setLoad(false);
+      if (res.data.msg==="Activity updated successfully!") {
+        alert("Activity updated successfully!");
+        setShowEditForm(false);
+      } else {
+        alert(res.data.message);
+      }
+    } catch (error) {
+      console.error("Error updating activity:", error);
+      alert("Error updating activity.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="mt-[100px] mx-5  position w-full  max-w-[400px] p-8 bg-white bg-opacity-90  shadow-2xl rounded-2xl border border-gray-200">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">📋 Activity Form</h2>
+    <div className="mt-[100px] position mx-5 w-full max-w-[400px] p-8 bg-white bg-opacity-90 shadow-2xl rounded-2xl border border-gray-200 relative">
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">📋 Edit Activity</h2>
       <div className="space-y-5">
-        {/* Select Field */}
+        
+        {/* Activity Selection */}
         <div>
           <label className="block font-medium text-gray-700">Select Activity:</label>
           <select
             name="activity"
+            value={detail.activity}
             onChange={handleInput}
             className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
             required
@@ -132,6 +141,7 @@ const Form = () => {
             placeholder="Enter topic name"
             className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
             name="Tname"
+            value={detail.Tname}
             onChange={handleInput}
           />
         </div>
@@ -144,19 +154,21 @@ const Form = () => {
             placeholder="Enter topic description"
             className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
             name="TDes"
+            value={detail.TDes}
             onChange={handleInput}
           />
         </div>
 
-        {/* Radio Buttons */}
+        {/* Mode Selection */}
         <div>
           <label className="block font-medium text-gray-700">Choose Mode:</label>
           <div className="flex gap-6">
             <label className="flex items-center gap-2">
               <input
                 type="radio"
-                onClick={() => setDetail({ ...detail, mode: "solo", members: [] })}
                 name="mode"
+                checked={detail.mode === "solo"}
+                onChange={() => setDetail({ ...detail, mode: "solo", members: [] })}
                 className="w-4 h-4"
               />
               Solo
@@ -164,8 +176,9 @@ const Form = () => {
             <label className="flex items-center gap-2">
               <input
                 type="radio"
-                onClick={() =>{ setDetail({ ...detail, mode: "group", members: [] });setName('')}}
                 name="mode"
+                checked={detail.mode === "group"}
+                onChange={() => setDetail({ ...detail, mode: "group", members: [] })}
                 className="w-4 h-4"
               />
               Group
@@ -173,7 +186,6 @@ const Form = () => {
           </div>
         </div>
 
-        {/* Name Input for Solo Mode */}
         {detail.mode === "solo" && (
           <div>
             <label className="block font-medium text-gray-700">Name:</label>
@@ -187,7 +199,7 @@ const Form = () => {
           </div>
         )}
 
-        {/* Input for Group Members */}
+        {/* Group Members */}
         {detail.mode === "group" && (
           <div>
             <label className="block font-medium text-gray-700">Member Names:</label>
@@ -196,27 +208,17 @@ const Form = () => {
                 type="text"
                 value={member}
                 onChange={(e) => setMember(e.target.value)}
-                className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
+                className="w-full p-3 border rounded-lg shadow-sm"
                 placeholder="Add member name"
               />
-              {showEdit?<button
-                onClick={()=>{editMember();setShowEdit(false)}}
-                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg shadow-lg hover:scale-105 transition"
-              >
-                 Edit
-              </button>:
-              <button
-                onClick={addMember}
-                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg shadow-lg hover:scale-105 transition"
-              >
-                 Add
-              </button>}
-              
+              {showEdit ? (
+                <button onClick={editMember} className="px-4 py-2 bg-orange-500 text-white rounded-lg shadow-lg hover:scale-105">Edit</button>
+              ) : (
+                <button onClick={addMember} className="px-4 py-2 bg-orange-500 text-white rounded-lg shadow-lg hover:scale-105">Add</button>
+              )}
             </div>
           </div>
         )}
-
-        {/* Display Members */}
         {detail.members.length > 0 && detail.mode === "group" && (
           <div className="mt-2">
             <h3 className="font-medium text-gray-700">Members:</h3>
@@ -249,28 +251,14 @@ const Form = () => {
         )}
 
         {/* Submit Button */}
-        <button
-          type="submit"
-          onClick={handleSubmit}
-          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-3 rounded-lg shadow-lg hover:scale-105 transition"
-        >
-          {!load ? "Submit" : (
-            <div className="flex items-center justify-center">
-              <div className="w-5 h-5 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-              <span className="ml-2">Loading...</span>
-            </div>
-          )}
+        <button onClick={handleUpdate} className="w-full bg-blue-500 text-white p-3 rounded-lg shadow-lg hover:scale-105">
+          {loading ? "Updating..." : "Update"}
         </button>
       </div>
 
-      {/* Close Button */}
-      <RxCross1
-        onClick={() => setShowForm(false)}
-        size="35px"
-        className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-200 transition duration-200"
-      />
+      <RxCross1 onClick={() => setShowEditForm(false)} size="35px" className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-200" />
     </div>
   );
 };
 
-export default Form;
+export default EditActivity;
