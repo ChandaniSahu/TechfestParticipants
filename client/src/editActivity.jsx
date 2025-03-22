@@ -89,15 +89,19 @@ const EditActivity = () => {
 
     try {
       const res = await axios.put(
-        `http://localhost:3000/api/updateActivity/${editActivity._id}`,
+        `https://techfest-participants.vercel.app/api/updateActivity/${editActivity._id}`,
         detail
       );
 
       if (res.data.msg==="Activity updated successfully!") {
         alert("Activity updated successfully!");
         setShowEditForm(false);
+        setDetail({activity: "", mode:"",Tname: "",TDes: "",members: [],})
+          
+          
       } else {
-        alert(res.data.message);
+        alert(res.data.msg);
+        console.log('failed editing',res.data.msg)
       }
     } catch (error) {
       console.error("Error updating activity:", error);

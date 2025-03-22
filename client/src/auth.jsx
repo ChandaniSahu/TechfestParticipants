@@ -24,7 +24,7 @@ const Auth = () => {
     }
     else{
         try {
-      const res = await axios.post("http://localhost:3000/api/generateOTP", { gmail: login.gmail });
+      const res = await axios.post("https://techfest-participants.vercel.app/api/generateOTP", { gmail: login.gmail });
       // console.log('res',res)
       setOtpVar(res.data.otp);
       setOtpSent(true); // Show OTP input field

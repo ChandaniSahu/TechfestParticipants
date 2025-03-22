@@ -115,7 +115,7 @@ router.get("/deleteData/:id", async (req, res) => {
         const updatedActivity = await Form.findByIdAndUpdate(id, req.body, { new: true });
         {
         if (!updatedActivity) {
-            res.json({ success: true, message: "update Activity is not found " });
+            res.json({ success: false, message: "update Activity is not found " });
         }}
         
         res.json({ success: true, message: "Activity Edited successfully" });

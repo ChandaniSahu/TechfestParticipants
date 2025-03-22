@@ -35,7 +35,7 @@ const Dashboard = () => {
     }
     try{
       console.log('delete id',id)
-   const res = await axios.get(`http://localhost:3000/api/deleteData/${id}`)
+   const res = await axios.get(`https://techfest-participants.vercel.app/api/deleteData/${id}`)
     console.log('res',res)
     }
    catch(e){
