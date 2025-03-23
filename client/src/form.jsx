@@ -1,82 +1,44 @@
-import { useState,useContext } from "react";
-import {useEffect} from 'react'
+import { useState, useContext } from "react";
+import { useEffect } from "react";
 import axios from "axios";
 import { RxCross1 } from "react-icons/rx";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
-
+import { FiCheckCircle } from "react-icons/fi";
 import { context } from "./App";
 
 const Form = () => {
   const { setShowForm, setColor, user } = useContext(context);
   const [detail, setDetail] = useState({
     email: user.email,
-    activity: "",
-    mode: "",
-    Tname: "",
-    TDes: "",
-    members: [],
+    activities: [],
+    name: "",
+    department: "",
+    year: "",
   });
-  const [member, setMember] = useState('');
-  const [name, setName] = useState("");
-  const [index, setIndex] = useState(null);
-  const [showEdit, setShowEdit] = useState(false);
   const [load, setLoad] = useState(false);
 
-  const handleInput = (e) => {
-    setDetail({ ...detail, [e.target.name]: e.target.value });
-  };
-
-  const addMember = () => {
-    if (member.trim() !== "") {
-      setDetail({ ...detail, members: [...detail.members, member] });
-      setMember("");
-    }
-  };
-
   useEffect(() => {
-    if (detail.mode === "solo" && name) {
-      setDetail((prev) => ({ ...prev, members: [name] }));
-    }
-  }, [name, detail.mode]);
+    console.log("detail", detail);
+  }, [detail]);
 
-   // Function to delete a member
-   const deleteMember = (index) => {
-    const updatedMembers = detail.members.filter((_, i) => i !== index);
-    setDetail({ ...detail, members: updatedMembers });
+  const activities = {
+    Day1: ["Robo War", "Drone Racing", "CAD Design Competition", "Treasure Hunt"],
+    Day2: ["Bridge Design", "Project Expo", "Tech Quiz", "Idea Pitching" ,"Business Plan Competition"],
+    Day3: ["Gaming Challenge", "Coding Contest", "TED-X", "Innovation Challenge","Tech Charades","Techno Rythm"],
   };
 
-  // Function to select a member for editing
-  const selectMember = (index) => {
-    setIndex(index);
-    console.log(index,detail.members[index])
-    setMember(detail.members[index]);
-    setShowEdit(true);
-  };
-
-  // Function to save the edited member
-  const editMember = () => {
-    const updatedMembers = [...detail.members];
-    updatedMembers[index] = member;
-    setDetail({ ...detail, members: updatedMembers });
-    setMember("");
+  const handleCheckboxChange = (day, activity, checked) => {
+    setDetail((prev) => ({
+      ...prev,
+      activities: checked
+        ? [...(prev.activities || []), { day, activity }]
+        : (prev.activities || []).filter((item) => item.activity !== activity),
+    }));
   };
 
   const handleSubmit = async () => {
     setLoad(true);
-    if (!detail.activity || !detail.Tname || !detail.TDes || !detail.mode || detail.members.length === 0) {
+    if (!detail.activities.length || !detail.name || !detail.department || !detail.year) {
       alert("All fields are required");
-      setLoad(false);
-      return;
-    }
-
-    if (detail.mode === "group" && detail.members.length < 2) {
-      alert("At least two members are required");
-      setLoad(false);
-      return;
-    }
-
-    if (detail.mode === "solo" && detail.members.length > 1) {
-      alert("Only one member is allowed in solo mode");
       setLoad(false);
       return;
     }
@@ -84,181 +46,102 @@ const Form = () => {
     try {
       const res = await axios.post("https://techfest-participants.vercel.app/api/storeData", detail);
       if (res.data.message === "data stored successfully") {
+        alert("Form submitted successfully");
         setShowForm(false);
         setColor("f");
+      } else {
+        alert(res.data.message);
+        console.log("failed submitting", res.data.message);
       }
-      else
-      alert(res.data.message);
     } catch (e) {
       console.log("error in handleSubmit", e);
-      alert('Error in submitting form')
-      
-
-    }
-    finally{
+      alert("Error in submitting form");
+    } finally {
       setLoad(false);
     }
   };
 
   return (
-    <div className="mt-[100px] mx-5  position w-full  max-w-[400px] p-8 bg-white bg-opacity-90  shadow-2xl rounded-2xl border border-gray-200">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">📋 Activity Form</h2>
-      <div className="space-y-5">
-        {/* Select Field */}
+    <div className="mt-[40px] position max-w-[370px] w-[500px]  p-8 bg-white shadow-2xl rounded-3xl border border-gray-300 relative overflow-auto max-h-[500px] scrollbar-[20px] scrollbar-thumb-gray-500 scrollbar-track-gray-300">
+      <h2 className="text-3xl font-extrabold mb-6 text-center text-blue-700">📋 Activity Form</h2>
+      <div className="space-y-6">
+        {/* Name Input */}
         <div>
-          <label className="block font-medium text-gray-700">Select Activity:</label>
+          <label className="block text-lg font-semibold text-gray-800">Full Name:</label>
+          <input
+            type="text"
+            placeholder="Enter your name"
+            className="w-full p-3 border rounded-xl shadow-md focus:ring-2 focus:ring-blue-400 transition"
+            value={detail.name}
+            onChange={(e) => setDetail({ ...detail, name: e.target.value })}
+          />
+        </div>
+
+        {/* Year Selection */}
+        <div>
+          <label className="block text-lg font-semibold text-gray-800">Year of Study:</label>
           <select
-            name="activity"
-            onChange={handleInput}
-            className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
-            required
+            className="w-full p-3 border rounded-xl shadow-md focus:ring-2 focus:ring-blue-400 transition"
+            value={detail.year}
+            onChange={(e) => setDetail({ ...detail, year: e.target.value })}
           >
-            <option value="">Select an option</option>
-            <option value="Presentation">Presentation</option>
-            <option value="Poster Making">Poster Making</option>
-            <option value="Reel Making">Reel Making</option>
-            <option value="Quiz Competition">Quiz Competition</option>
-            <option value="Debate Competition">Debate Competition</option>
-            <option value="ETX video">ETX video</option>
-            <option value="Project(s/w,h/w)">Project(s/w,h/w)</option>
+            <option value="" disabled>Select your year</option>
+            {["1st", "2nd", "3rd", "4th"].map((year) => (
+              <option key={year} value={year}>{year} Year</option>
+            ))}
           </select>
         </div>
 
-        {/* Topic Name */}
+        {/* Department Selection */}
         <div>
-          <label className="block font-medium text-gray-700">Topic Name:</label>
-          <input
-            type="text"
-            placeholder="Enter topic name"
-            className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
-            name="Tname"
-            onChange={handleInput}
-          />
-        </div>
-
-        {/* Topic Description */}
-        <div>
-          <label className="block font-medium text-gray-700">Topic Description:</label>
-          <input
-            type="text"
-            placeholder="Enter topic description"
-            className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
-            name="TDes"
-            onChange={handleInput}
-          />
-        </div>
-
-        {/* Radio Buttons */}
-        <div>
-          <label className="block font-medium text-gray-700">Choose Mode:</label>
-          <div className="flex gap-6">
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                onClick={() => setDetail({ ...detail, mode: "solo", members: [] })}
-                name="mode"
-                className="w-4 h-4"
-              />
-              Solo
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                onClick={() =>{ setDetail({ ...detail, mode: "group", members: [] });setName('')}}
-                name="mode"
-                className="w-4 h-4"
-              />
-              Group
-            </label>
-          </div>
-        </div>
-
-        {/* Name Input for Solo Mode */}
-        {detail.mode === "solo" && (
-          <div>
-            <label className="block font-medium text-gray-700">Name:</label>
-            <input
-              type="text"
-              placeholder="Enter your name"
-              value={name}
-              className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-        )}
-
-        {/* Input for Group Members */}
-        {detail.mode === "group" && (
-          <div>
-            <label className="block font-medium text-gray-700">Member Names:</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={member}
-                onChange={(e) => setMember(e.target.value)}
-                className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
-                placeholder="Add member name"
-              />
-              {showEdit?<button
-                onClick={()=>{editMember();setShowEdit(false)}}
-                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg shadow-lg hover:scale-105 transition"
-              >
-                 Edit
-              </button>:
-              <button
-                onClick={addMember}
-                className="px-4 py-2 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg shadow-lg hover:scale-105 transition"
-              >
-                 Add
-              </button>}
-              
-            </div>
-          </div>
-        )}
-
-        {/* Display Members */}
-        {detail.members.length > 0 && detail.mode === "group" && (
-          <div className="mt-2">
-            <h3 className="font-medium text-gray-700">Members:</h3>
-            {detail.members.map((member, index) => (
-              <div
-                key={index}
-                className=" relative  w-full p-2 border  rounded-lg bg-gray-100 shadow-sm text-gray-800 mb-2"
-              >
-                {member}
-                
-                <div className="absolute top-2 right-1 flex space-x-[10px]">
-                 <FiTrash2
-                 title="Delete"
-            onClick={() => {deleteMember(index)}}
-            className="text-red-500 cursor-pointer hover:text-red-700"
-            size={20}
-          /> 
-          <FiEdit
-            onClick={() => {selectMember(index)}}
-            title="Edit"
-            className="text-green-500 cursor-pointer hover:text-green-700"
-            size={20}
-          />
-          
-        </div>
-              </div>
-              
+          <label className="block text-lg font-semibold text-gray-800">Department:</label>
+          <select
+            className="w-full p-3 border rounded-xl shadow-md focus:ring-2 focus:ring-blue-400 transition"
+            value={detail.department}
+            onChange={(e) => setDetail({ ...detail, department: e.target.value })}
+          >
+            <option value="" disabled>Select your department</option>
+            {["CSE", "Aero", "Mech", "Civil", "Mining"].map((dept) => (
+              <option key={dept} value={dept}>{dept}</option>
             ))}
-          </div>
-        )}
+          </select>
+        </div>
+
+        {/* Activities Section */}
+        <h2 className="text-lg font-semibold text-gray-800">Select Activities:</h2>
+        <div className="flex flex-col gap-4">
+          {Object.keys(activities).map((day) => (
+            <div key={day} className="bg-gray-100 p-4 rounded-xl shadow-md h-auto hover:bg-gray-200 hover:scale-105 transition duration-100">
+              <h3 className="text-lg font-bold text-blue-600 text-center">{day}</h3>
+              <ul className="space-y-2">
+                {activities[day].map((activity, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      onChange={(e) => handleCheckboxChange(day, activity, e.target.checked)}
+                      className="w-5 h-5 text-blue-600"
+                    />
+                    <span className="text-gray-700">{activity}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
 
         {/* Submit Button */}
         <button
           type="submit"
           onClick={handleSubmit}
-          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-3 rounded-lg shadow-lg hover:scale-105 transition"
+          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-xl shadow-md hover:scale-105 transition flex items-center justify-center"
         >
-          {!load ? "Submit" : (
-            <div className="flex items-center justify-center">
+          {!load ? (
+            "Submit"
+          ) : (
+            <>
               <div className="w-5 h-5 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
               <span className="ml-2">Loading...</span>
-            </div>
+            </>
           )}
         </button>
       </div>
@@ -266,11 +149,16 @@ const Form = () => {
       {/* Close Button */}
       <RxCross1
         onClick={() => setShowForm(false)}
-        size="35px"
-        className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-200 transition duration-200"
+        size="30px"
+        className="absolute top-4 right-4 text-gray-700 cursor-pointer hover:text-red-500 transition"
       />
     </div>
   );
 };
 
 export default Form;
+
+
+
+
+       

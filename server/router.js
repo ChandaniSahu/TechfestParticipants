@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const Form = require('./Schema/formSchema')
+const Activity = require('./Schema/ActivitySchema')
 const nodemailer = require('nodemailer')
 
 // https://techfest-participants.vercel.app
@@ -8,33 +8,34 @@ const nodemailer = require('nodemailer')
 
 router.post('/storeData',async(req,res)=>{
     try{
-     const {email,activity,Tname,TDes,mode,members} = req.body
+     const {email,name,year,department,activities} = req.body
      console.log('req.body',req.body) 
-     const check = await Form.findOne({email,activity,members})
-     console.log('check',check)  
-        if(check){
-            res.json({message:'data already exist'})
-        }
-        else{
-            const form = await Form.create({email,activity,Tname,TDes,mode,members})
-            if(form){
+    //  const check = await Activity.findOne({email,name})
+    //  console.log('check',check)  
+    //     if(check){
+    //         res.json({message:'data already exist'})
+    //     }
+        
+    //     else{
+            const dataStored = await Activity.create({email,name,year,department,activities})
+            if(dataStored){
                 res.json({message:'data stored successfully'})
             }
             else{
                 res.json({message:'data not stored,please try again'})
             }
-        }
+        // }
     
     }
     catch(e){
      console.log('server error in storedata',e)
-     res.json({msg:'server error in submitting form'})
+     res.json({msg:'server error in submitting Activity'})
     }
 })
 
 router.get('/getData',async(req,res)=>{ 
     try{
-        const data = await Form.find()
+        const data = await Activity.find()
         if(data){
             console.log('data',data)
             res.json(data)
@@ -97,7 +98,7 @@ router.get("/deleteData/:id", async (req, res) => {
       const { id } = req.params;
       console.log("Deleting activity with ID:", id);
   
-      const deletedActivity = await Form.findByIdAndDelete(id);
+      const deletedActivity = await Activity.findByIdAndDelete(id);
       if (!deletedActivity) {
         return res.json({ success: false, message: "Delete Activity not found" });
       }
@@ -112,7 +113,7 @@ router.get("/deleteData/:id", async (req, res) => {
   router.put('/updateActivity/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const updatedActivity = await Form.findByIdAndUpdate(id, req.body, { new: true });
+        const updatedActivity = await Activity.findByIdAndUpdate(id, req.body, { new: true });
         {
         if (!updatedActivity) {
             res.json({ success: false, message: "update Activity is not found " });
