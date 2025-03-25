@@ -26,12 +26,12 @@ const Form = () => {
     Day3: ["Gaming Challenge", "Coding Contest", "TED-X", "Innovation Challenge","Tech Charades","Techno Rythm"],
   };
 
-  const handleCheckboxChange = (day, activity, checked) => {
+  const handleCheckboxChange = (activity, checked) => {
     setDetail((prev) => ({
       ...prev,
       activities: checked
-        ? [...(prev.activities || []), { day, activity }]
-        : (prev.activities || []).filter((item) => item.activity !== activity),
+        ? [...(prev.activities || []), activity]
+        : (prev.activities || []).filter((item) => item !== activity),
     }));
   };
 
@@ -118,7 +118,7 @@ const Form = () => {
                   <li key={i} className="flex items-center gap-3">
                     <input
                       type="checkbox"
-                      onChange={(e) => handleCheckboxChange(day, activity, e.target.checked)}
+                      onChange={(e) => handleCheckboxChange(activity,e.target.checked)}
                       className="w-5 h-5 text-blue-600"
                     />
                     <span className="text-gray-700">{activity}</span>

@@ -19,14 +19,11 @@ const ActivitySchema = new mongoose.Schema({
       enum: ["CSE", "Aero", "Mech", "Civil", "Mining"],
      
     },
-    activities: [
-      {
-        day: { type: String },
-        activity: { type: String },
-      }
-    ],
+    activities: [ ],
+      
+   
    
   });
   
-  const Activity = mongoose.model("Activity", ActivitySchema);
+  const Activity = mongoose.model("Activity1", ActivitySchema);
   module.exports = Activity;

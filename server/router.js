@@ -5,18 +5,18 @@ const nodemailer = require('nodemailer')
 
 // https://techfest-participants.vercel.app
 
-
+https://techfest-participants.vercel.app//rani
 router.post('/storeData',async(req,res)=>{
     try{
      const {email,name,year,department,activities} = req.body
      console.log('req.body',req.body) 
-    //  const check = await Activity.findOne({email,name})
-    //  console.log('check',check)  
-    //     if(check){
-    //         res.json({message:'data already exist'})
-    //     }
+     const check = await Activity.findOne({email,name})
+     console.log('check',check)  
+        if(check){
+            res.json({message:'data already exist'})
+        }
         
-    //     else{
+        else{
             const dataStored = await Activity.create({email,name,year,department,activities})
             if(dataStored){
                 res.json({message:'data stored successfully'})
@@ -24,7 +24,7 @@ router.post('/storeData',async(req,res)=>{
             else{
                 res.json({message:'data not stored,please try again'})
             }
-        // }
+        }
     
     }
     catch(e){
