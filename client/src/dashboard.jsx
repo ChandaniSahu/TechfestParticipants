@@ -32,6 +32,7 @@ export default function ActivitiesOverview() {
   const [activity,setActivity] = useState()
   useEffect(() => {
     fetchData();
+    GroupData(defaultActivity)
   }, []);
 
   const fetchData = async () => {
