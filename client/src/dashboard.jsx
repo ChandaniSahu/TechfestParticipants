@@ -1,5 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect ,useContext} from "react";
 import axios from "axios";
+import {context} from './App'
+import { FiTrash2, FiEdit } from "react-icons/fi";
+
 
 const activities = {
   Day1: ["Robo War", "Drone Racing", "CAD Design Competition", "Treasure Hunt"],
@@ -21,6 +24,7 @@ const activities = {
 };
 
 export default function ActivitiesOverview() {
+  const {editActivity,setEditActivity,setShowEditForm,user} = useContext(context)
   const defaultDay = "Day1";
   const defaultActivity = activities[defaultDay][0];
   const [data,setData] = useState([])
@@ -43,26 +47,7 @@ export default function ActivitiesOverview() {
       setData(res.data)
       console.log("Fetched Participants:", res.data);
 
-      // const activityParticipants = {};
-      // rev.forEach((participant) => {
-      //   console.log('participants',participant)
-      //   if (participant.activities[0]) {
-      //     console.log('participant.activity',participant.activities[0])
-      //     if (!activityParticipants[participant.activities[0]]) {
-      //       activityParticipants[participant.activities[0]] = [];
-      //       console.log('if not executed')
-      //     }
-      //     activityParticipants[participant.activities[0]].push(participant);
-      //     console.log('sdfsdf' , activityParticipants[participant.activities[0]].push(participant))
-      //   }
-      // });
-
-      // setGroupedParticipants(activityParticipants);   
-      // console.log('group', groupedParticipants)
-
-      // const firstValidActivity = Object.keys(activityParticipants)[0] || null;
-      // setSelectedActivity(firstValidActivity);
-      // console.log('selacty',selectedActivity)
+      
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
@@ -86,35 +71,39 @@ export default function ActivitiesOverview() {
   {console.log('worked',participants);
   setGroupedParticipants(participants);}
   }
-//   const data = [
-//     {
-//         _id: "67e120817c4a59548262741b",
-//         email: "rrrsahu2005@gmail.com",
-//         name: "dfgdfg",
-//         year: "1st",
-//         department: "Mech",
-//         activities: ["Robo War", "Bridge Design", "Gaming Challenge"],
-//         __v: 0
-//     },
-//     {
-//         _id: "67e120987c4a59548262741d",
-//         email: "rrrsahu2005@gmail.com",
-//         name: "fdgd",
-//         year: "3rd",
-//         department: "Civil",
-//         activities: ["Robo War", "Project Expo", "Coding Contest"],
-//         __v: 0
-//     },
-//     {
-//         _id: "67e120af7c4a59548262741f",
-//         email: "rrrsahu2005@gmail.com",
-//         name: "sfsf",
-//         year: "4th",
-//         department: "Mech",
-//         activities: ["CAD Design Competition", "Tech Quiz", "TED-X"],
-//         __v: 0
-//     }
-// ];
+
+  useEffect(() => {
+    if (data.length > 0) {
+      GroupData(selectedActivity);
+    }
+  }, [data, selectedActivity]);
+
+  const deleteActivity = async (id) => {
+    setShowEditForm(false)
+    if (!window.confirm("Are you sure you want to delete this activity?")) {
+      return;
+    }
+    try{
+      console.log('delete id',id)
+   const res = await axios.get(`https://techfest-participants.vercel.app/api/deleteData/${id}`)
+    console.log('res',res)
+    if(res.data.msg==='Activity deleted successfully')
+      alert('Activity deleted successfully')
+
+    else
+      alert('Activity not deleted')
+    }
+   catch(e){
+     console.log('error in delete in dash',e)
+   }
+  }
+
+  const handleEditActivity =  (activity) => {
+    console.log('editactivity',activity)
+    setEditActivity(activity)
+    console.log('acty',editActivity)
+    setShowEditForm(true)
+   }
 
 
 
@@ -188,7 +177,7 @@ export default function ActivitiesOverview() {
             </p>)}
 
               {groupedParticipants?.length > 0 ? (
-                <ul className="space-y-3 overflow-auto max-h-[300px] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 p-2">
+                <ul className="space-y-3 overflow-auto max-h-[300px] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200 p-2 ">
                   {groupedParticipants.map((participant, index) => (
                     <li
                       key={index}
@@ -197,14 +186,29 @@ export default function ActivitiesOverview() {
                       <span className="flex-shrink-0 w-10 h-10 bg-blue-700 text-white flex items-center justify-center rounded-full font-bold shadow-md">
                         {participant.name.charAt(0)}
                       </span>
-                      <div>
+                      <div className="space-x-[100px]" key={participant}><div>
                         <p className="font-semibold text-gray-800">{participant.name}</p>
                         <p className="text-sm text-gray-600">
                           {participant.department}, {participant.year} Year
                         </p>
                       </div>
+                      {user.email==='rrrsahu2005@gmail.com' && user.loggedIn ?<div className="absolute top-3 right-3 flex space-x-3 ml-[10px]">
+                           <FiTrash2
+                              onClick={() => deleteActivity(participant._id)}
+                             className="text-red-500 cursor-pointer hover:text-red-700"
+                             size={20}
+                            />
+                            
+                           <FiEdit
+                            onClick={() => {handleEditActivity(participant);console.log('participant',participant)}}
+                            className="text-green-500 cursor-pointer hover:text-green-700"
+                            size={20}
+                            />
+                         </div>:''}
+                         </div>
                     </li>
                   ))}
+                  
                 </ul>
               ) : (
                 <p className="text-center text-gray-500">No participants registered yet.</p>

@@ -5,14 +5,27 @@ import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { context } from "./App";
 
 const EditActivity = () => {
+  const activities = {
+    Day1: ["Robo War", "Drone Racing", "CAD Design Competition", "Treasure Hunt"],
+    Day2: ["Bridge Design", "Project Expo", "Tech Quiz", "Idea Pitching" ,"Business Plan Competition"],
+    Day3: ["Gaming Challenge", "Coding Contest", "TED-X", "Innovation Challenge","Tech Charades","Techno Rythm"],
+  };
+
+  const handleCheckboxChange = (activity, checked) => {
+    setDetail((prev) => ({
+      ...prev,
+      activities: checked
+        ? [...(prev.activities || []), activity]
+        : (prev.activities || []).filter((item) => item !== activity),
+    }));
+  };
   const { setShowForm, setColor, editActivity, setEditActivity ,setShowEditForm} = useContext(context);
 
   const [detail, setDetail] = useState({
-    activity: "",
-    mode: "",
-    Tname: "",
-    TDes: "",
-    members: [],
+    activities: [],
+    name: "",
+    year: "",
+    department: "",
   });
 
   const [member, setMember] = useState("");
@@ -24,79 +37,34 @@ const EditActivity = () => {
   useEffect(() => {
     if (editActivity && editActivity) {
       setDetail({
-        activity: editActivity.activity || "",
-        mode: editActivity.mode || "",
-        Tname: editActivity.Tname || "",
-        TDes: editActivity.TDes || "",
-        members: editActivity.members || [],
+        activities: editActivity.activities || "",
+        name: editActivity.name || "",
+        year: editActivity.year || "",
+        department: editActivity.department || "",
       });
-      setName(editActivity.members[0] || "");
     }
   }, [editActivity]);
 
-  const handleInput = (e) => {
-    setDetail({ ...detail, [e.target.name]: e.target.value });
-  };
-
-  const addMember = () => {
-    if (member.trim() !== "") {
-      setDetail((prev) => ({ ...prev, members: [...prev.members, member] }));
-      setMember("");
-    }
-  };
-
-  const deleteMember = (index) => {
-    setDetail((prev) => ({
-      ...prev,
-      members: prev.members.filter((_, i) => i !== index),
-    }));
-  };
-
-  const selectMember = (index) => {
-    setIndex(index);
-    setMember(detail.members[index]);
-    setShowEdit(true);
-  };
-
-  const editMember = () => {
-    const updatedMembers = [...detail.members];
-    updatedMembers[index] = member;
-    setDetail((prev) => ({ ...prev, members: updatedMembers }));
-    setMember("");
-    setShowEdit(false);
-  };
-
+  
   const handleUpdate = async () => {
     setLoading(true);
 
-    if (!detail.activity || !detail.Tname || !detail.TDes || !detail.mode) {
+    if (!detail.activities || !detail.name || !detail.year || !detail.department) {
       alert("All fields are required.");
       setLoading(false);
       return;
     }
-
-    if (detail.mode === "group" && detail.members.length < 2) {
-      alert("At least two members are required for group mode.");
-      setLoading(false);
-      return;
-    }
-
-    if (detail.mode === "solo" && detail.members.length !== 1) {
-      alert("Only one member is allowed in solo mode.");
-      setLoading(false);
-      return;
-    }
-
     try {
       const res = await axios.put(
         `https://techfest-participants.vercel.app/api/updateActivity/${editActivity._id}`,
         detail
       );
 
-      if (res.data.msg==="Activity updated successfully!") {
+      if (res.data.msg==="Activity Edited successfully") {
+        console.log('editmsg',res.data.msg)
         alert("Activity updated successfully!");
         setShowEditForm(false);
-        setDetail({activity: "", mode:"",Tname: "",TDes: "",members: [],})
+        setDetail({activities: [], name:"",year: "",department: ""})
           
           
       } else {
@@ -112,155 +80,97 @@ const EditActivity = () => {
   };
 
   return (
-    <div className="mt-[100px] position mx-5 w-full max-w-[400px] p-8 bg-white bg-opacity-90 shadow-2xl rounded-2xl border border-gray-200 relative">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">📋 Edit Activity</h2>
-      <div className="space-y-5">
-        
-        {/* Activity Selection */}
+    <div className="mt-[40px] position max-w-[370px] w-[500px]  p-8 bg-white shadow-2xl rounded-3xl border border-gray-300 relative overflow-auto max-h-[500px] scrollbar-[20px] scrollbar-thumb-gray-500 scrollbar-track-gray-300">
+      <h2 className="text-3xl font-extrabold mb-6 text-center text-blue-700">📋 Activity Form</h2>
+      <div className="space-y-6">
+        {/* Name Input */}
         <div>
-          <label className="block font-medium text-gray-700">Select Activity:</label>
+          <label className="block text-lg font-semibold text-gray-800">Full Name:</label>
+          <input
+            type="text"
+            placeholder="Enter your name"
+            className="w-full p-3 border rounded-xl shadow-md focus:ring-2 focus:ring-blue-400 transition"
+            value={detail.name}
+            onChange={(e) => setDetail({ ...detail, name: e.target.value })}
+          />
+        </div>
+
+        {/* Year Selection */}
+        <div>
+          <label className="block text-lg font-semibold text-gray-800">Year of Study:</label>
           <select
-            name="activity"
-            value={detail.activity}
-            onChange={handleInput}
-            className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
-            required
+            className="w-full p-3 border rounded-xl shadow-md focus:ring-2 focus:ring-blue-400 transition"
+            value={detail.year}
+            onChange={(e) => setDetail({ ...detail, year: e.target.value })}
           >
-            <option value="">Select an option</option>
-            <option value="Presentation">Presentation</option>
-            <option value="Poster Making">Poster Making</option>
-            <option value="Reel Making">Reel Making</option>
-            <option value="Quiz Competition">Quiz Competition</option>
-            <option value="Debate Competition">Debate Competition</option>
-            <option value="ETX video">ETX video</option>
-            <option value="Project(s/w,h/w)">Project(s/w,h/w)</option>
+            <option value="" disabled>Select your year</option>
+            {["1st", "2nd", "3rd", "4th"].map((year) => (
+              <option key={year} value={year}>{year} Year</option>
+            ))}
           </select>
         </div>
 
-        {/* Topic Name */}
+        {/* Department Selection */}
         <div>
-          <label className="block font-medium text-gray-700">Topic Name:</label>
-          <input
-            type="text"
-            placeholder="Enter topic name"
-            className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
-            name="Tname"
-            value={detail.Tname}
-            onChange={handleInput}
-          />
-        </div>
-
-        {/* Topic Description */}
-        <div>
-          <label className="block font-medium text-gray-700">Topic Description:</label>
-          <input
-            type="text"
-            placeholder="Enter topic description"
-            className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
-            name="TDes"
-            value={detail.TDes}
-            onChange={handleInput}
-          />
-        </div>
-
-        {/* Mode Selection */}
-        <div>
-          <label className="block font-medium text-gray-700">Choose Mode:</label>
-          <div className="flex gap-6">
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="mode"
-                checked={detail.mode === "solo"}
-                onChange={() => setDetail({ ...detail, mode: "solo", members: [] })}
-                className="w-4 h-4"
-              />
-              Solo
-            </label>
-            <label className="flex items-center gap-2">
-              <input
-                type="radio"
-                name="mode"
-                checked={detail.mode === "group"}
-                onChange={() => setDetail({ ...detail, mode: "group", members: [] })}
-                className="w-4 h-4"
-              />
-              Group
-            </label>
-          </div>
-        </div>
-
-        {detail.mode === "solo" && (
-          <div>
-            <label className="block font-medium text-gray-700">Name:</label>
-            <input
-              type="text"
-              placeholder="Enter your name"
-              value={name}
-              className="w-full p-3 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400"
-              onChange={(e) => setName(e.target.value)}
-            />
-          </div>
-        )}
-
-        {/* Group Members */}
-        {detail.mode === "group" && (
-          <div>
-            <label className="block font-medium text-gray-700">Member Names:</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={member}
-                onChange={(e) => setMember(e.target.value)}
-                className="w-full p-3 border rounded-lg shadow-sm"
-                placeholder="Add member name"
-              />
-              {showEdit ? (
-                <button onClick={editMember} className="px-4 py-2 bg-orange-500 text-white rounded-lg shadow-lg hover:scale-105">Edit</button>
-              ) : (
-                <button onClick={addMember} className="px-4 py-2 bg-orange-500 text-white rounded-lg shadow-lg hover:scale-105">Add</button>
-              )}
-            </div>
-          </div>
-        )}
-        {detail.members.length > 0 && detail.mode === "group" && (
-          <div className="mt-2">
-            <h3 className="font-medium text-gray-700">Members:</h3>
-            {detail.members.map((member, index) => (
-              <div
-                key={index}
-                className=" relative  w-full p-2 border  rounded-lg bg-gray-100 shadow-sm text-gray-800 mb-2"
-              >
-                {member}
-                
-                <div className="absolute top-2 right-1 flex space-x-[10px]">
-                 <FiTrash2
-                 title="Delete"
-            onClick={() => {deleteMember(index)}}
-            className="text-red-500 cursor-pointer hover:text-red-700"
-            size={20}
-          /> 
-          <FiEdit
-            onClick={() => {selectMember(index)}}
-            title="Edit"
-            className="text-green-500 cursor-pointer hover:text-green-700"
-            size={20}
-          />
-          
-        </div>
-              </div>
-              
+          <label className="block text-lg font-semibold text-gray-800">Department:</label>
+          <select
+            className="w-full p-3 border rounded-xl shadow-md focus:ring-2 focus:ring-blue-400 transition"
+            value={detail.department}
+            onChange={(e) => setDetail({ ...detail, department: e.target.value })}
+          >
+            <option value="" disabled>Select your department</option>
+            {["CSE", "Aero", "Mech", "Civil", "Mining"].map((dept) => (
+              <option key={dept} value={dept}>{dept}</option>
             ))}
-          </div>
-        )}
+          </select>
+        </div>
+
+        {/* Activities Section */}
+        <h2 className="text-lg font-semibold text-gray-800">Select Activities:</h2>
+        <div className="flex flex-col gap-4">
+          {Object.keys(activities).map((day) => (
+            <div key={day} className="bg-gray-100 p-4 rounded-xl shadow-md h-auto hover:bg-gray-200 hover:scale-105 transition duration-100">
+              <h3 className="text-lg font-bold text-blue-600 text-center">{day}</h3>
+              <ul className="space-y-2">
+                {activities[day].map((activity, i) => (
+                  <li key={i} className="flex items-center gap-3">
+                    <input
+                      type="checkbox"
+                      checked={detail.activities.includes(activity)}
+                      onChange={(e) => handleCheckboxChange(activity,e.target.checked)}
+                      className="w-5 h-5 text-blue-600"
+                    />
+                    <span className="text-gray-700">{activity}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
 
         {/* Submit Button */}
-        <button onClick={handleUpdate} className="w-full bg-blue-500 text-white p-3 rounded-lg shadow-lg hover:scale-105">
-          {loading ? "Updating..." : "Update"}
+        <button
+          type="submit"
+          onClick={handleUpdate}
+          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 rounded-xl shadow-md hover:scale-105 transition flex items-center justify-center"
+        >
+          {!loading ? (
+            "Update"
+          ) : (
+            <>
+              <div className="w-5 h-5 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+              <span className="ml-2">Loading...</span>
+            </>
+          )}
         </button>
       </div>
 
-      <RxCross1 onClick={() => setShowEditForm(false)} size="35px" className="absolute top-3 right-3 p-2 rounded-full hover:bg-gray-200" />
+      {/* Close Button */}
+      <RxCross1
+        onClick={() => setShowEditForm(false)}
+        size="30px"
+        className="absolute top-4 right-4 text-gray-700 cursor-pointer hover:text-red-500 transition"
+      />
     </div>
   );
 };

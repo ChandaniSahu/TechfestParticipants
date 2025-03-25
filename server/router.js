@@ -100,13 +100,13 @@ router.get("/deleteData/:id", async (req, res) => {
   
       const deletedActivity = await Activity.findByIdAndDelete(id);
       if (!deletedActivity) {
-        return res.json({ success: false, message: "Delete Activity not found" });
+        return res.json({ success: false, msg: "Delete Activity not found" });
       }
   
-      res.json({ success: true, message: "Activity deleted successfully" });
+      res.json({ success: true, msg: "Activity deleted successfully" });
     } catch (error) {
       console.error("Error deleting activity:", error);
-      res.json({ success: false, message: "Internal Server Error" });
+      res.json({ success: false, msg: "Internal Server Error" });
     }
   });
 
@@ -116,13 +116,13 @@ router.get("/deleteData/:id", async (req, res) => {
         const updatedActivity = await Activity.findByIdAndUpdate(id, req.body, { new: true });
         {
         if (!updatedActivity) {
-            res.json({ success: false, message: "update Activity is not found " });
+            res.json({ success: false, msg: "update Activity is not found " });
         }}
         
-        res.json({ success: true, message: "Activity Edited successfully" });
+        res.json({ success: true, msg: "Activity Edited successfully" });
 
     } catch (error) {
-        res.json({ message: 'Error updating activity', error });
+        res.json({ msg: 'Error updating activity', error });
     }
 });
 module.exports = router
