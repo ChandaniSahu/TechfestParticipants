@@ -24,10 +24,10 @@ const activities = {
 };
 
 export default function ActivitiesOverview() {
-  const {editActivity,setEditActivity,setShowEditForm,user} = useContext(context)
+  const {editActivity,setEditActivity,setShowEditForm,user,data,fetchData} = useContext(context)
   const defaultDay = "Day1";
   const defaultActivity = activities[defaultDay][0];
-  const [data,setData] = useState([])
+  // const [data,setData] = useState([])
   const [selectedDay, setSelectedDay] = useState(defaultDay);
   const [selectedActivity, setSelectedActivity] = useState(defaultActivity);
   const [groupedParticipants, setGroupedParticipants] = useState({});
@@ -39,21 +39,21 @@ export default function ActivitiesOverview() {
     GroupData(defaultActivity)
   }, []);
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const res = await axios.get("https://techfest-participants.vercel.app/api/getData");
-      // const rev = res.data.reverse();
-      setData(res.data)
-      console.log("Fetched Participants:", res.data);
+  // const fetchData = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const res = await axios.get("https://techfest-participants.vercel.app/api/getData");
+  //     const rev = res.data.reverse();
+  //     setData(rev)
+  //     console.log("Fetched Participants:", res.data);
 
       
-    } catch (error) {
-      console.error("Error fetching data:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //   } catch (error) {
+  //     console.error("Error fetching data:", error);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   
   const GroupData =(name)=>{
     setActivity(name)
@@ -77,18 +77,23 @@ export default function ActivitiesOverview() {
       GroupData(selectedActivity);
     }
   }, [data, selectedActivity]);
+    
 
-  const deleteActivity = async (id) => {
+  const deleteActivity = async (id,activityName) => {
+    console.log('client',id,activityName)
     setShowEditForm(false)
     if (!window.confirm("Are you sure you want to delete this activity?")) {
       return;
     }
-    try{
-      console.log('delete id',id)
-   const res = await axios.get(`https://techfest-participants.vercel.app/api/deleteData/${id}`)
-    console.log('res',res)
-    if(res.data.msg==='Activity deleted successfully')
+    try {
+      const res = await axios.put(`https://techfest-participants.vercel.app/api/deleteActivity/${id}`, {
+        activityToRemove: activityName
+      });
+    if(res.data.msg==='Activity deleted successfully'){
       alert('Activity deleted successfully')
+      fetchData()
+    }
+      
 
     else
       alert('Activity not deleted')
@@ -186,15 +191,16 @@ export default function ActivitiesOverview() {
                       <span className="flex-shrink-0 w-10 h-10 bg-blue-700 text-white flex items-center justify-center rounded-full font-bold shadow-md">
                         {participant.name.charAt(0)}
                       </span>
-                      <div className="space-x-[100px]" key={participant}><div>
+                      <div className="space-x-[100px] flex" key={participant}><div>
                         <p className="font-semibold text-gray-800">{participant.name}</p>
                         <p className="text-sm text-gray-600">
                           {participant.department}, {participant.year} Year
                         </p>
                       </div>
-                      {user.email==='rrrsahu2005@gmail.com' && user.loggedIn ?<div className="absolute top-3 right-3 flex space-x-3 ml-[10px]">
+                       <div> 
+                         {user.email==='rrrsahu2005@gmail.com' && user.loggedIn ?<div className="absolute top-3 right-3 flex space-x-3 ml-[10px]">
                            <FiTrash2
-                              onClick={() => deleteActivity(participant._id)}
+                              onClick={() =>{ deleteActivity(participant._id,activity)}}
                              className="text-red-500 cursor-pointer hover:text-red-700"
                              size={20}
                             />
@@ -204,7 +210,14 @@ export default function ActivitiesOverview() {
                             className="text-green-500 cursor-pointer hover:text-green-700"
                             size={20}
                             />
-                         </div>:''}
+                         </div>:
+                         user?.email?.toLowerCase() === participant?.email?.toLowerCase() && user.loggedIn ?<FiEdit
+                         onClick={() => {handleEditActivity(participant);console.log('participant',participant)}}
+                         className="absolute top-3 right-3 text-green-500 cursor-pointer hover:text-green-700"
+                         size={20}
+                         />:''}
+                       </div>
+                     
                          </div>
                     </li>
                   ))}

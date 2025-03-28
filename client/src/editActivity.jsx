@@ -19,7 +19,7 @@ const EditActivity = () => {
         : (prev.activities || []).filter((item) => item !== activity),
     }));
   };
-  const { setShowForm, setColor, editActivity, setEditActivity ,setShowEditForm} = useContext(context);
+  const { setShowForm, setColor, editActivity, setEditActivity ,setShowEditForm,fetchData} = useContext(context);
 
   const [detail, setDetail] = useState({
     activities: [],
@@ -49,18 +49,31 @@ const EditActivity = () => {
   const handleUpdate = async () => {
     setLoading(true);
 
-    if (!detail.activities || !detail.name || !detail.year || !detail.department) {
+    if ( !detail.name || !detail.year || !detail.department) {
       alert("All fields are required.");
       setLoading(false);
       return;
     }
-    try {
+
+    else if(detail.activities.length === 0) {
+      alert("You have to participate in at least one activity.");
+      setLoading(false);
+      return;
+    }
+
+   else {
+      try {
+      const data = {...detail}
+      console.log('data',data)
+     console.log('updtaed',data[editActivity._id])
+      
       const res = await axios.put(
         `https://techfest-participants.vercel.app/api/updateActivity/${editActivity._id}`,
         detail
       );
 
       if (res.data.msg==="Activity Edited successfully") {
+        fetchData()
         console.log('editmsg',res.data.msg)
         alert("Activity updated successfully!");
         setShowEditForm(false);
@@ -76,12 +89,14 @@ const EditActivity = () => {
       alert("Error updating activity.");
     } finally {
       setLoading(false);
-    }
+      setShowEditForm(false);
+      setDetail({activities: [], name:"",year: "",department: ""})
+    }}
   };
 
   return (
     <div className="mt-[40px] position max-w-[370px] w-[500px]  p-8 bg-white shadow-2xl rounded-3xl border border-gray-300 relative overflow-auto max-h-[500px] scrollbar-[20px] scrollbar-thumb-gray-500 scrollbar-track-gray-300">
-      <h2 className="text-3xl font-extrabold mb-6 text-center text-blue-700">📋 Activity Form</h2>
+      <h2 className="text-3xl font-extrabold mb-6 text-center text-blue-700">📋 Edit Activity Form</h2>
       <div className="space-y-6">
         {/* Name Input */}
         <div>

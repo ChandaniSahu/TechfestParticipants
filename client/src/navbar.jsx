@@ -9,7 +9,7 @@ import EditActivity from "./editActivity.jsx";
 
 const Navbar = () => {
   const { showLogin, setShowLogin, color, user, setUser, setColor, 
-    showForm, setShowForm ,showEditForm} = useContext(context);
+    showForm, setShowForm ,showEditForm,loggedIn} = useContext(context);
 
   
 
@@ -25,8 +25,20 @@ const Navbar = () => {
        <img src={Logo} alt="MATS Logo" className="w-[70px] h-[70px] object-contain transition-transform duration-200 hover:scale-110" />
 
         {/* Navigation Links */}
+        <div className="flex text-[20px] font-medium space-x-[70px]">
+        <a href="https://mseit-techfest-2025.netlify.app" target="_blank" 
+         className="transition duration-300 custom-link text-gray-700 hover:text-orange-500"
+          onClick={() => {
+            setColor("d");
+            setShowLogin(false);
+            setShowForm(false);
+            setShowEditForm(false);
+          }} >
+        Detail
+      </a>
+        
        {user.loggedIn?
-       <div className="flex space-x-8 text-[20px] font-medium">
+       <div className="flex space-x-[70PX] ">
           <Link
             onClick={() => {
               setColor("f");
@@ -62,7 +74,7 @@ const Navbar = () => {
               color === "f" ? "text-orange-600 border-b-2 border-orange-500" : "text-gray-700 hover:text-orange-500"
             }`}>Login</Link>
 
-        }
+        }</div>
         
       </div>
 

@@ -5,6 +5,7 @@ import Dashboard from "./dashboard.jsx";
 import Navbar from "./navbar.jsx";
 import EditActivity from "./editActivity.jsx";
 import Auth from "./auth.jsx";
+import axios from "axios";
 
 export const context = createContext();
 const App = () => {
@@ -13,6 +14,7 @@ const App = () => {
   const[showForm,setShowForm] = useState(false)
   const[showEditForm,setShowEditForm] = useState(false)
   const [editActivity,setEditActivity]=useState('')
+  const [data, setData] = useState([]);
 
   const[user,setUser] = useState(()=>{
     const retrievedDetails = localStorage.getItem('user')
@@ -27,11 +29,19 @@ const App = () => {
     localStorage.setItem('user',JSON.stringify(user))
   },[user])
 
- 
+  const fetchData = async () => {
+    try {
+      const res = await axios.get("https://techfest-participants.vercel.app/api/getData");
+      setData(res.data.reverse()); // Update state with fetched data
+      console.log("Fetched Participants:", res.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    }
+  };
 
   return (
     <context.Provider value={{showLogin,setShowLogin,color,setColor,showForm,setShowForm,
-      user,setUser,editActivity,setEditActivity,showEditForm,setShowEditForm
+      user,setUser,editActivity,setEditActivity,showEditForm,setShowEditForm,data,setData,fetchData
     }}>
       <Router>
         <Navbar />

@@ -6,7 +6,7 @@ import { FiCheckCircle } from "react-icons/fi";
 import { context } from "./App";
 
 const Form = () => {
-  const { setShowForm, setColor, user } = useContext(context);
+  const { setShowForm, setColor, user ,setShowEditForm,fetchData} = useContext(context);
   const [detail, setDetail] = useState({
     email: user.email,
     activities: [],
@@ -37,28 +37,44 @@ const Form = () => {
 
   const handleSubmit = async () => {
     setLoad(true);
-    if (!detail.activities.length || !detail.name || !detail.department || !detail.year) {
+    if (!detail.name || !detail.department || !detail.year) {
       alert("All fields are required");
       setLoad(false);
       return;
     }
+    else if(detail.activities.length===0){
+      alert('you have to participate in atleast one activity')
+      setLoad(false)
+      return;
+     }
 
-    try {
+    else{
+      try {
       const res = await axios.post("https://techfest-participants.vercel.app/api/storeData", detail);
-      if (res.data.message === "data stored successfully") {
+      const msg = res.data.msg?.trim().toLowerCase(); // Normalize comparison
+  
+      if (msg === "data stored successfully") {
+        fetchData();
         alert("Form submitted successfully");
         setShowForm(false);
         setColor("f");
-      } else {
-        alert(res.data.message);
-        console.log("failed submitting", res.data.message);
+      } 
+      else if (msg === "data already exist") {
+        alert('You have already participated , you can edit your submission')
+        setShowForm(false)
+      }
+      else {
+        alert("Please! Try Again");
+        console.log("Failed submitting:", res.data.msg);
+        setShowForm(false);
       }
     } catch (e) {
-      console.log("error in handleSubmit", e);
+      console.log("Error in handleSubmit:", e);
       alert("Error in submitting form");
     } finally {
       setLoad(false);
     }
+  }
   };
 
   return (

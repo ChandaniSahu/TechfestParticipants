@@ -13,16 +13,16 @@ router.post('/storeData',async(req,res)=>{
      const check = await Activity.findOne({email,name})
      console.log('check',check)  
         if(check){
-            res.json({message:'data already exist'})
+            res.json({msg:'data already exist'})
         }
         
         else{
             const dataStored = await Activity.create({email,name,year,department,activities})
             if(dataStored){
-                res.json({message:'data stored successfully'})
+                res.json({msg:'data stored successfully'})
             }
             else{
-                res.json({message:'data not stored,please try again'})
+                res.json({msg:'data not stored,please try again'})
             }
         }
     
@@ -93,13 +93,19 @@ router.post('/generateOTP',async (req,res)=>{
      });
 })
 
-router.get("/deleteData/:id", async (req, res) => {
+router.put("/deleteActivity/:id", async (req, res) => {
     try {
-      const { id } = req.params;
-      console.log("Deleting activity with ID:", id);
+        const { id } = req.params;
+        const { activityToRemove } = req.body;
+        console.log(id, activityToRemove)
   
-      const deletedActivity = await Activity.findByIdAndDelete(id);
-      if (!deletedActivity) {
+        const updatedActivity = await Activity.findByIdAndUpdate(
+            id,
+            { $pull: { activities: activityToRemove } }, // Removes activity from array
+            { new: true } // Returns updated document
+        );
+        console.log('updatedActivity',updatedActivity)
+      if (!updatedActivity) {
         return res.json({ success: false, msg: "Delete Activity not found" });
       }
   
@@ -116,7 +122,7 @@ router.get("/deleteData/:id", async (req, res) => {
         const updatedActivity = await Activity.findByIdAndUpdate(id, req.body, { new: true });
         {
         if (!updatedActivity) {
-            res.json({ success: false, msg: "update Activity is not found " });
+            res.json({ success: false, msg: "Please ! Try Again" });
         }}
         
         res.json({ success: true, msg: "Activity Edited successfully" });
